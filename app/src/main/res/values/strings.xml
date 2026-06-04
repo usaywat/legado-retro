@@ -1870,5 +1870,12 @@
     <string name="fvd_jianguoyun_limit">Due to Jianguoyun limit on listing files, some backups may not be displayed, please clean up old backups in time</string>
     <string name="fvd_webdav_restore_error">WebDav restore error\n%s</string>
 
+<<<<<<< HEAD
     <string name="group_name">分组名称</string>
+=======
+    <!-- Explore Show Column Layout -->
+    <string name="switch_layout">Switch Layout</string>
+    <string name="select_column">Select Column(%d)</string>
+    <string name="select_column_count">Select Column Count</string>
+>>>>>>> ae48f2af (feat(发现): 新增切换布局功能，支持1-10列网格展示)
 </resources>
