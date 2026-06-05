@@ -1881,5 +1881,30 @@
     <string name="switch_layout_list">List</string>
     <string name="switch_layout_grid">Grid</string>
     <string name="switch_layout_waterfall">Waterfall</string>
+<<<<<<< HEAD
 >>>>>>> 47b3bf0c (feat(发现页): 新增瀑布流布局，删除适配宽图功能)
+=======
+    <!-- Custom Help Documents -->
+    <string name="add_custom_group">添加自定义分组</string>
+    <string name="add_custom_doc">添加自定义文档</string>
+    <string name="group_name">分组名称</string>
+    <string name="doc_name">文档名称</string>
+    <string name="file_format">文件格式</string>
+    <string name="add_method">添加方式</string>
+    <string name="create_new_doc">新建文档</string>
+    <string name="import_from_file">从文件导入</string>
+    <string name="group_created_success">分组创建成功</string>
+    <string name="group_created_failed">分组创建失败</string>
+    <string name="doc_added_success">文档添加成功</string>
+    <string name="doc_added_failed">文档添加失败</string>
+    <string name="invalid_group_name">分组名称不合法,不能包含特殊字符</string>
+    <string name="group_already_exists">分组已存在</string>
+    <string name="custom_doc_path_hint">将在以下位置创建文件夹:\n/sdcard/LegadoPlus/help_docs/[分组名]/</string>
+    <string name="refresh_custom_docs">刷新自定义文档</string>
+    <string name="edit_custom_doc">编辑自定义文档</string>
+    <string name="delete_custom_doc">删除自定义文档</string>
+    <string name="delete_custom_group">删除自定义分组</string>
+    <string name="confirm_delete_doc">确定要删除此文档吗?</string>
+    <string name="confirm_delete_group">确定要删除此分组及内部所有文档吗?</string>
+>>>>>>> 1387cf90 (feat：增加自定义文档字符串资源)
 </resources>
