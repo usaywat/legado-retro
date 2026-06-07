@@ -1894,6 +1894,7 @@
 >>>>>>> 05464d7d (cleanup：删除废弃的自定义帮助文档弹窗)
     <string name="group_name">分组名称</string>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <string name="doc_name">文档名称</string>
     <string name="file_format">文件格式</string>
     <string name="add_method">添加方式</string>
@@ -1915,4 +1916,21 @@
 >>>>>>> 1387cf90 (feat：增加自定义文档字符串资源)
 =======
 >>>>>>> 87ecbb98 (cleanup：删除废弃的自定义帮助文档弹窗)
+=======
+
+    <!-- Video Player Gesture Control Settings -->
+    <string name="double_tap_seek_enabled">Double tap to rewind/forward</string>
+    <string name="double_tap_seek_seconds">Double tap seek seconds</string>
+    <string name="double_tap_seek_seconds_summary">Double tap seek seconds: %d seconds</string>
+    <string name="quick_jump_buttons_enabled">Quick jump buttons</string>
+    <string name="quick_jump_minutes_a">Rewind/forward minutes A</string>
+    <string name="quick_jump_minutes_b">Rewind/forward minutes B</string>
+    <string name="quick_jump_minutes_summary">Minutes: %d minutes</string>
+    <string name="left_slide_brightness_enabled">Left slide to adjust brightness</string>
+    <string name="right_slide_volume_enabled">Right slide to adjust volume</string>
+    <string name="quick_jump_back_a">Rewind %d minutes</string>
+    <string name="quick_jump_back_b">Rewind %d minutes</string>
+    <string name="quick_jump_forward_b">Forward %d minutes</string>
+    <string name="quick_jump_forward_a">Forward %d minutes</string>
+>>>>>>> 6852f467 (feat(video): 增强视频播放器手势控制功能 - 双击快退/快进、快捷跳转按钮、滑动调节亮度/音量、Compose重构设置界面)
 </resources>
