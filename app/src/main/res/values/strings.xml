@@ -1926,6 +1926,10 @@
 =======
 =======
 
+    <!-- Bookshelf Layout -->
+    <string name="book_view">Book View</string>
+    <string name="folder_view">Folder View</string>
+
     <!-- Group Management -->
     <string name="group_name">Group Name</string>
 >>>>>>> c6f00a4b (优化中英文资源文件)
