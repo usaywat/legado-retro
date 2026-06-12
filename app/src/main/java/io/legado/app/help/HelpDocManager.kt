@@ -54,6 +54,7 @@ object HelpDocManager {
             "其他文档",
             listOf(
                 HelpDoc("部分功能需要安卓特定版本", "安卓特定版本功能"),
+                HelpDoc("导出编码说明", "导出编码说明"),
                 HelpDoc("ExtensionContentType", "扩展内容类型")
             )
         )
