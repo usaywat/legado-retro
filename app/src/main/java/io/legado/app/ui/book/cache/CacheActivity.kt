@@ -26,9 +26,7 @@ import io.legado.app.data.entities.BookGroup
 import io.legado.app.databinding.ActivityCacheBookBinding
 import io.legado.app.databinding.DialogEditTextBinding
 import io.legado.app.databinding.DialogSelectSectionExportBinding
-import io.legado.app.help.HelpDocManager
 import io.legado.app.help.book.BookHelp
-import io.legado.app.ui.widget.dialog.TextDialog
 import io.legado.app.help.book.contains
 import io.legado.app.help.book.getExportFileName
 import io.legado.app.help.book.isAudio
@@ -58,6 +56,7 @@ import io.legado.app.utils.isContentScheme
 import io.legado.app.utils.observeEvent
 import io.legado.app.utils.setIconCompat
 import io.legado.app.utils.showDialogFragment
+import io.legado.app.utils.showHelp
 import io.legado.app.utils.startService
 import io.legado.app.utils.toastOnUi
 import io.legado.app.utils.verificationField
@@ -251,19 +250,7 @@ class CacheActivity : VMBaseActivity<ActivityCacheBookBinding, CacheViewModel>()
             R.id.menu_export_file_name -> alertExportFileName()
             R.id.menu_export_type -> showExportTypeConfig()
             R.id.menu_export_charset -> showCharsetConfig()
-
-            // 新增帮助菜单项处理
-            R.id.menu_export_charset_help -> {
-                showDialogFragment(
-                    TextDialog(
-                        title = getString(R.string.help),
-                        content = HelpDocManager.loadDoc(assets, "导出编码说明"),
-                        mode = TextDialog.Mode.MD,
-                        helpDocName = "导出编码说明"
-                    )
-                )
-            }
-
+            R.id.menu_export_charset_help -> showHelp("导出编码说明")
             R.id.menu_cache_rate -> showCacheRateDialog()
             R.id.menu_log -> showDialogFragment<AppLogDialog>()
             else -> if (item.groupId == R.id.menu_group) {
