@@ -30,6 +30,7 @@ import io.legado.app.constant.PreferKey
 import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.SearchBook
 import io.legado.app.help.config.AppConfig
+import io.legado.app.help.glide.AdaptiveCoverTransformation
 import io.legado.app.help.glide.ImageLoader
 import io.legado.app.help.glide.OkHttpModelLoader
 import io.legado.app.lib.theme.accentColor
@@ -67,9 +68,24 @@ class CoverImageView @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : AppCompatImageView(context, attrs) {
     companion object {
-        private val nameBitmapCache by lazy { LruCache<String, Bitmap>(33) }
-        private val needNameBitmap by lazy { LruCache<String, Boolean>(99) }
-        private val htmlCoverCache by lazy { LruCache<String, Bitmap>(50) }
+        private val _nameBitmapCache by lazy { LruCache<String, Bitmap>(33) }
+        private val _needNameBitmap by lazy { LruCache<String, Boolean>(99) }
+        private val _htmlCoverCache by lazy { LruCache<String, Bitmap>(50) }
+
+        /**
+         * 书名绘制缓存（公开供 CoverLoader 使用）
+         */
+        val nameBitmapCache: LruCache<String, Bitmap> get() = _nameBitmapCache
+        
+        /**
+         * 是否需要绘制书名标记缓存（公开供 CoverLoader 使用）
+         */
+        val needNameBitmap: LruCache<String, Boolean> get() = _needNameBitmap
+        
+        /**
+         * HTML封面缓存（公开供 CoverLoader 使用）
+         */
+        val htmlCoverCache: LruCache<String, Bitmap> get() = _htmlCoverCache
 
         /**
          * 清除HTML封面缓存
@@ -78,8 +94,20 @@ class CoverImageView @JvmOverloads constructor(
          * 确保书架上的封面能及时刷新
          */
         fun clearHtmlCoverCache() {
-            htmlCoverCache.evictAll()
+            _htmlCoverCache.evictAll()
         }
+
+        /**
+         * 清除所有封面缓存
+         */
+        fun clearAllCache() {
+            _htmlCoverCache.evictAll()
+            _nameBitmapCache.evictAll()
+            _needNameBitmap.evictAll()
+        }
+
+        // Job 存储 tag key
+        private const val TAG_KEY_JOB = "cover_job"
     }
     private var viewWidth: Float = 0f
     private var viewHeight: Float = 0f
@@ -292,7 +320,9 @@ class CoverImageView @JvmOverloads constructor(
         searchBook: SearchBook,
         loadOnlyWifi: Boolean = false,
         fragment: Fragment? = null,
-        lifecycle: Lifecycle? = null
+        lifecycle: Lifecycle? = null,
+        overrideWidth: Int = 0,
+        overrideHeight: Int = 0
     ) {
         val galleryIdentity = listOf(
             searchBook.bookUrl,
@@ -300,7 +330,7 @@ class CoverImageView @JvmOverloads constructor(
             searchBook.name,
             searchBook.author
         ).joinToString("|")
-        load(searchBook.coverUrl, searchBook.name, searchBook.author, loadOnlyWifi, searchBook.origin, fragment, lifecycle, galleryIdentity = galleryIdentity)
+        load(searchBook.coverUrl, searchBook.name, searchBook.author, loadOnlyWifi, searchBook.origin, fragment, lifecycle, galleryIdentity = galleryIdentity, overrideWidth = overrideWidth, overrideHeight = overrideHeight)
     }
 
     fun load(
@@ -308,9 +338,18 @@ class CoverImageView @JvmOverloads constructor(
         loadOnlyWifi: Boolean = false,
         fragment: Fragment? = null,
         lifecycle: Lifecycle? = null,
+        overrideWidth: Int = 0,
+        overrideHeight: Int = 0,
         onLoadFinish: (() -> Unit)? = null
     ) {
-       load(book.getDisplayCover(), book.name, book.author, loadOnlyWifi, book.origin, fragment, lifecycle, onLoadFinish, book.bookUrl)
+       load(
+           book.getDisplayCover(), book.name, book.author,
+           loadOnlyWifi, book.origin, fragment, lifecycle,
+           galleryIdentity = book.bookUrl,
+           overrideWidth = overrideWidth,
+           overrideHeight = overrideHeight,
+           onLoadFinish = onLoadFinish
+       )
     }
 
     fun load(
@@ -321,8 +360,10 @@ class CoverImageView @JvmOverloads constructor(
         sourceOrigin: String? = null,
         fragment: Fragment? = null,
         lifecycle: Lifecycle? = null,
-        onLoadFinish: (() -> Unit)? = null,
-        galleryIdentity: String? = null
+        galleryIdentity: String? = null,
+        overrideWidth: Int = 0,
+        overrideHeight: Int = 0,
+        onLoadFinish: (() -> Unit)? = null
     ) {
         val currentAuthor = author?.replace(AppPattern.bdRegex, "")?.trim()?.also {
             this.author = it
@@ -396,8 +437,11 @@ class CoverImageView @JvmOverloads constructor(
                     }
                 })
             }
+            if (overrideWidth > 0 && overrideHeight > 0) {
+                builder.override(overrideWidth, overrideHeight)
+            }
+            builder.centerCrop()
             builder
-                .centerCrop()
                 .into(this)
         }
     }

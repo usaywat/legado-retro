@@ -16,11 +16,14 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.core.view.postDelayed
 import io.legado.app.constant.AppLog
+import io.legado.app.constant.PreferKey
 import io.legado.app.data.repository.debug.DebugEventCenter
 import io.legado.app.data.repository.debug.FlowLogRecorder
 import io.legado.app.help.config.AppConfig
 import io.legado.app.ui.debuglog.components.DebugFloatingBall
 import io.legado.app.ui.theme.LegadoTheme
+import io.legado.app.utils.removePref
+import splitties.init.appCtx
 
 object DebugFloatingBallManager {
     private var isShowing = false
@@ -139,8 +142,10 @@ object DebugFloatingBallManager {
     }
     
     fun onActivityResumed(activity: Activity) {
-        if (AppConfig.debugLogFloatingBall && !isShowing && !isAttaching) {
-            show(activity)
+        if (AppConfig.debugLogFloatingBall) {
+            if (!isShowing && !isAttaching) {
+                show(activity)
+            }
         }
     }
     
@@ -159,12 +164,25 @@ object DebugFloatingBallManager {
         }
     }
     
+    /**
+     * 应用退出时调用，重置悬浮球位置
+     * 只有完全退出应用后再进入时才会重置位置
+     */
+    fun onAppFinished() {
+        resetSavedPosition()
+    }
+    
     fun onPanelDismissed(activity: Activity) {
         if (AppConfig.debugLogFloatingBall && currentActivity == activity) {
             if (!activity.isFinishing && !activity.isDestroyed) {
                 show(activity)
             }
         }
+    }
+
+    private fun resetSavedPosition() {
+        appCtx.removePref(PreferKey.debugFloatingBallPosX)
+        appCtx.removePref(PreferKey.debugFloatingBallPosY)
     }
     
     private fun validateShowToken(token: Int, activity: Activity): Boolean {

@@ -81,13 +81,19 @@ class BookInfoViewModel(application: Application) : BaseViewModel(application) {
                     upBook(it)
                     return@execute
                 }
-                appDb.searchBookDao.getSearchBook(bookUrl)?.toBook()?.let {
-                    upBook(it)
+                appDb.searchBookDao.getSearchBook(bookUrl)?.toBook()?.let { book ->
+                    appDb.bookDao.getBook(book.name, book.author)?.let {
+                        inBookshelf = !it.isNotShelf
+                    }
+                    upBook(book)
                     return@execute
                 }
             }
-            appDb.searchBookDao.getFirstByNameAuthor(name, author)?.toBook()?.let {
-                upBook(it)
+            appDb.searchBookDao.getFirstByNameAuthor(name, author)?.toBook()?.let { book ->
+                appDb.bookDao.getBook(book.name, book.author)?.let {
+                    inBookshelf = !it.isNotShelf
+                }
+                upBook(book)
                 return@execute
             }
             throw NoStackTraceException("未找到书籍")
@@ -102,6 +108,7 @@ class BookInfoViewModel(application: Application) : BaseViewModel(application) {
             val name = intent.getStringExtra("name") ?: ""
             val author = intent.getStringExtra("author") ?: ""
             appDb.bookDao.getBook(name, author)?.let { book ->
+                inBookshelf = !book.isNotShelf
                 upBook(book)
             }
         }
@@ -564,10 +571,15 @@ class BookInfoViewModel(application: Application) : BaseViewModel(application) {
         }
     }
 
-    fun addToBookshelf(success: (() -> Unit)?) { //点击书架按钮或在加分组时触发
+    fun addToBookshelf(success: (() -> Unit)?, groupId: Long? = null) { //点击书架按钮或在加分组时触发
         execute {
+            inBookshelf = true //尽早设置，防止loadChapter并发重新添加notShelf标记
             bookData.value?.let { book ->
                 book.removeType(BookType.notShelf)
+                if (groupId != null) {
+                    AppLog.put("addToBookshelf: 设置groupId=$groupId, bookUrl=${book.bookUrl}")
+                    book.group = groupId
+                }
                 if (book.order == 0) {
                     book.order = appDb.bookDao.minOrder - 1
                 }
@@ -578,8 +590,12 @@ class BookInfoViewModel(application: Application) : BaseViewModel(application) {
                 }
                 if (ReadBook.book?.isSameNameAuthor(book) == true) {
                     ReadBook.book = book
+                    ReadBook.inBookshelf = true
                 } else if (AudioPlay.book?.isSameNameAuthor(book) == true) {
                     AudioPlay.book = book
+                    AudioPlay.inBookshelf = true
+                } else if (ReadManga.book?.isSameNameAuthor(book) == true) {
+                    ReadManga.inBookshelf = true
                 }
                 book.save()
                 SourceCallBack.callBackBook(SourceCallBack.ADD_BOOK_SHELF, bookSource, book)
@@ -587,7 +603,9 @@ class BookInfoViewModel(application: Application) : BaseViewModel(application) {
             chapterListData.value?.let {
                 appDb.bookChapterDao.insert(*it.toTypedArray())
             }
-            inBookshelf = true
+        }.onError {
+            inBookshelf = false //保存失败时回滚状态，避免UI与数据库不一致
+            AppLog.put("加入书架失败: ${it.localizedMessage}", it)
         }.onSuccess {
             success?.invoke()
         }
@@ -687,3 +705,4 @@ class BookInfoViewModel(application: Application) : BaseViewModel(application) {
     }
 
 }
+
