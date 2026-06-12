@@ -1770,6 +1770,47 @@
     <string name="cover_gallery">Cover gallery</string>
     <string name="cover_gallery_summary">Manage group cover gallery, can be set as global default cover source</string>
     <string name="cronet">Cronet</string>
+<<<<<<< HEAD
+=======
+=======
+    <string name="url_record">URL Access Record</string>
+    <string name="record_url_switch">Enable URL Recording</string>
+    <string name="record_url_enabled">URL Recording Enabled</string>
+    <string name="record_url_disabled">URL Recording Disabled</string>
+    <string name="clear_records">Clear Records</string>
+    <string name="clear_old_records">Clear Old Records</string>
+    <string name="clear_old_7_days">Clear records older than 7 days</string>
+    <string name="clear_old_30_days">Clear records older than 30 days</string>
+    <string name="clear_all_records">Clear all records</string>
+    <string name="search_url_record_hint">Search URL/Domain/Source</string>
+    <string name="filter_by_domain">Filter by Domain</string>
+    
+    <!-- TTS Debug -->
+    <string name="play_audio">Play Audio</string>
+    <string name="view_js_lib">View JS Library</string>
+    <string name="view_result">View Result</string>
+    <string name="open_editor">Open Editor</string>
+    <string name="info">Info</string>
+    <string name="content_query">Content Query</string>
+    <string name="switch_rule">Switch Rule</string>
+    <string name="query_rule">Query Rule</string>
+    <string name="copy_matched_source_urls">Copy Matched Source URLs</string>
+    <string name="export_matched_sources">Export Matched Sources</string>
+    <string name="url_source_code">URL Source Code</string>
+    <string name="result_source_code">Result Source Code</string>
+    <string name="preview_dict">Preview Dict</string>
+    <string name="select_rule">Select Rule</string>
+    <string name="preset_rules">Preset Rules</string>
+    <string name="import_rules">Import Rules</string>
+    <string name="share_rules">Share Rules</string>
+    <string name="export_rules">Export Rules</string>
+    <string name="import_from_clipboard">Import from Clipboard</string>
+
+    <!-- Cover Gallery -->
+    <string name="cover_gallery">Cover Gallery</string>
+    <string name="cover_gallery_summary">Manage group cover gallery, can be set as global default cover source</string>
+>>>>>>> c6f00a4b (优化中英文资源文件)
+>>>>>>> babf2eb0 (feat：字典规则调试支持预览)
 
     <!-- Read Record Screen -->
     <string name="rr_confirm_delete">Confirm Delete</string>
