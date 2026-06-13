@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.legado.app.data.entities.NavigationBarEntry
 import io.legado.app.data.entities.Source
+import io.legado.app.model.TabIconPreset
 
 /**
  * 方案卡片组件
@@ -128,6 +129,15 @@ fun SchemeCard(
                     label = "不透明度",
                     value = "${entry.config.opacity}%"
                 )
+
+                // 图标风格
+                val iconStyle = getIconStyleSummary(entry)
+                if (iconStyle != null) {
+                    ConfigChip(
+                        label = "图标",
+                        value = iconStyle
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -196,5 +206,31 @@ private fun ConfigChip(
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface
         )
+    }
+}
+
+/**
+ * 获取图标风格摘要
+ *
+ * 如果所有 tab 都使用默认图标，返回 null（不显示）；
+ * 如果有自定义图标，返回"自定义"；
+ * 否则返回统一的预设名称。
+ */
+private fun getIconStyleSummary(entry: NavigationBarEntry): String? {
+    val config = entry.config
+    val icons = listOf(config.safeBookshelfIcon, config.safeDiscoveryIcon, config.safeRssIcon, config.safeMyIcon)
+
+    // 全部默认则不显示
+    if (icons.all { it.presetName == "default" && !it.isCustom }) return null
+
+    // 有自定义图标
+    if (icons.any { it.isCustom }) return "自定义"
+
+    // 检查是否统一预设
+    val presetNames = icons.map { it.presetName }.distinct()
+    return if (presetNames.size == 1) {
+        TabIconPreset.getPresetDisplayName(presetNames.first())
+    } else {
+        "混合"
     }
 }

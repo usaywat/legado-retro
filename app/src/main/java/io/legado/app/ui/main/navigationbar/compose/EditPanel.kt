@@ -1,5 +1,6 @@
 package io.legado.app.ui.main.navigationbar.compose
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,11 +35,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.legado.app.data.entities.LayoutMode
 import io.legado.app.data.entities.MaterialMode
 import io.legado.app.data.entities.NavigationBarConfig
+import io.legado.app.data.entities.TabIconConfig
+import io.legado.app.model.TabIconPreset
 
 /**
  * 编辑面板组件
@@ -59,9 +67,11 @@ fun EditPanel(
     onConfigChange: (NavigationBarConfig) -> Unit,
     onSave: () -> Unit,
     onCancel: () -> Unit,
+    onPickCustomIcon: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var name by remember(config.name) { mutableStateOf(config.name) }
+    var showIconPicker by remember { mutableStateOf<String?>(null) }
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -165,6 +175,16 @@ fun EditPanel(
                 )
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Tab 图标选择
+            ConfigSection(title = "Tab 图标") {
+                TabIconSelectorRow(
+                    config = config,
+                    onIconClick = { tabKey -> showIconPicker = tabKey }
+                )
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
 
             // 操作按钮
@@ -183,6 +203,154 @@ fun EditPanel(
                 }
             }
         }
+    }
+
+    // 图标选择器弹窗
+    showIconPicker?.let { tabKey ->
+        val currentIconConfig = when (tabKey) {
+            "bookshelf" -> config.safeBookshelfIcon
+            "discovery" -> config.safeDiscoveryIcon
+            "rss" -> config.safeRssIcon
+            "my" -> config.safeMyIcon
+            else -> TabIconConfig()
+        }
+
+        TabIconPickerDialog(
+            tabKey = tabKey,
+            currentConfig = currentIconConfig,
+            onConfirm = { newIconConfig ->
+                val newConfig = when (tabKey) {
+                    "bookshelf" -> config.copy(bookshelfIcon = newIconConfig)
+                    "discovery" -> config.copy(discoveryIcon = newIconConfig)
+                    "rss" -> config.copy(rssIcon = newIconConfig)
+                    "my" -> config.copy(myIcon = newIconConfig)
+                    else -> config
+                }
+                onConfigChange(newConfig)
+                showIconPicker = null
+            },
+            onDismiss = { showIconPicker = null },
+            onPickCustomFile = { onPickCustomIcon(tabKey) }
+        )
+    }
+}
+
+/**
+ * Tab 图标选择行
+ *
+ * 横向展示4个 tab 的图标预览，点击可打开图标选择器
+ */
+@Composable
+private fun TabIconSelectorRow(
+    config: NavigationBarConfig,
+    onIconClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        TabIconPreset.TAB_KEYS.forEach { tabKey ->
+            val iconConfig = when (tabKey) {
+                "bookshelf" -> config.safeBookshelfIcon
+                "discovery" -> config.safeDiscoveryIcon
+                "rss" -> config.safeRssIcon
+                "my" -> config.safeMyIcon
+                else -> TabIconConfig()
+            }
+
+            TabIconPreviewItem(
+                tabKey = tabKey,
+                iconConfig = iconConfig,
+                onClick = { onIconClick(tabKey) }
+            )
+        }
+    }
+}
+
+/**
+ * 单个 Tab 图标预览项
+ */
+@Composable
+private fun TabIconPreviewItem(
+    tabKey: String,
+    iconConfig: TabIconConfig,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .clickable { onClick() }
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // 图标预览
+        if (!iconConfig.isCustom) {
+            val drawableResId = TabIconPreset.getPreviewDrawableResId(tabKey, iconConfig.presetName)
+            Image(
+                painter = painterResource(drawableResId),
+                contentDescription = tabKey,
+                modifier = Modifier.size(28.dp),
+                colorFilter = ColorFilter.tint(
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
+        } else {
+            // 自定义图标：从文件加载预览
+            val context = LocalContext.current
+            val customBitmap = remember(iconConfig.customIconPath) {
+                iconConfig.customIconPath?.let { path ->
+                    try {
+                        val file = java.io.File(path)
+                        if (file.exists()) {
+                            android.graphics.BitmapFactory.decodeFile(path)
+                        } else null
+                    } catch (e: Exception) { null }
+                }
+            }
+            if (customBitmap != null) {
+                Image(
+                    bitmap = customBitmap.asImageBitmap(),
+                    contentDescription = tabKey,
+                    modifier = Modifier.size(28.dp),
+                    contentScale = ContentScale.Fit
+                )
+            } else {
+                // 自定义图标加载失败占位
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "自",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Tab 名称
+        Text(
+            text = TabIconPreset.TAB_DISPLAY_NAMES[tabKey] ?: tabKey,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Spacer(modifier = Modifier.height(2.dp))
+
+        // 当前图标风格
+        Text(
+            text = if (iconConfig.isCustom) "自定义" else TabIconPreset.getPresetDisplayName(iconConfig.presetName),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
     }
 }
 

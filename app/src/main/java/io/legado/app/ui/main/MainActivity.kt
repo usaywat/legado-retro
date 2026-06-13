@@ -417,6 +417,71 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         val entry = NavigationBarManager.loadEntry(dirName)
         if (entry != null) {
             NavigationBarEffectApplier.applyEffect(entry.config, binding)
+            applyTabIcons(entry.config)
+        }
+    }
+
+    /**
+     * 应用 Tab 图标配置
+     *
+     * 根据方案配置中每个 tab 的图标设置，动态替换 BottomNavigationView 的菜单图标。
+     * 如果 tab 配置了自定义图标路径，则加载自定义图片；
+     * 否则根据预设名称加载对应的 drawable 资源。
+     */
+    private fun applyTabIcons(config: io.legado.app.data.entities.NavigationBarConfig) {
+        val menu = binding.bottomNavigationView.menu
+        val iconMap = mapOf(
+            R.id.menu_bookshelf to config.safeBookshelfIcon,
+            R.id.menu_discovery to config.safeDiscoveryIcon,
+            R.id.menu_rss to config.safeRssIcon,
+            R.id.menu_my_config to config.safeMyIcon
+        )
+        val tabKeyMap = mapOf(
+            R.id.menu_bookshelf to "bookshelf",
+            R.id.menu_discovery to "discovery",
+            R.id.menu_rss to "rss",
+            R.id.menu_my_config to "my"
+        )
+
+        // 判断是否存在自定义图标，存在则全局禁用 tint
+        val hasCustomIcon = iconMap.values.any { it.isCustom }
+        if (hasCustomIcon) {
+            // 禁用 BottomNavigationView 整体的图标 tint
+            binding.bottomNavigationView.itemIconTintList = null
+        }
+
+        iconMap.forEach { (menuId, iconConfig) ->
+            val tabKey = tabKeyMap[menuId] ?: return@forEach
+            val menuItem = menu.findItem(menuId) ?: return@forEach
+
+            if (iconConfig.isCustom) {
+                // 加载自定义图标
+                try {
+                    val file = java.io.File(iconConfig.customIconPath)
+                    if (file.exists()) {
+                        val bitmap = android.graphics.BitmapFactory.decodeFile(file.absolutePath)
+                        if (bitmap != null) {
+                            // 用 mutate() 创建独立 drawable 实例，避免 tint 在所有菜单项上累积
+                            val drawable = android.graphics.drawable.BitmapDrawable(resources, bitmap)
+                            drawable.setTintList(null)
+                            drawable.isFilterBitmap = true
+                            menuItem.icon = drawable
+                        }
+                    }
+                } catch (e: Exception) {
+                    // 自定义图标加载失败，使用预设
+                    val resId = io.legado.app.model.TabIconPreset.getDrawableResId(tabKey, iconConfig)
+                    if (resId != null) {
+                        menuItem.setIcon(resId)
+                    }
+                }
+            } else {
+                // 使用预设图标
+                val resId = io.legado.app.model.TabIconPreset.getDrawableResId(tabKey, iconConfig)
+                if (resId != null) {
+                    menuItem.setIcon(resId)
+                }
+            }
         }
     }
 
