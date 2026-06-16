@@ -58,6 +58,8 @@ object PreferKey {
     const val showMoreInfoInList = "showMoreInfoInList"
     const val showIntroInList = "showIntroInList"
     const val showTagsInList = "showTagsInList"
+    // 书籍外边框开关（仅在列表/紧凑列表视图时生效）
+    const val showBookBorder = "showBookBorder"
     // 简介显示行数（1-4行）
     const val introLinesInList = "introLinesInList"
     // 下拉选择分组开关（仅在分组样式为标签时生效）
@@ -263,10 +265,11 @@ object PreferKey {
     const val highlightRuleItems = "highlightRuleItems"
     const val highlightRuleGroups = "highlightRuleGroups"
     const val highlightRuleCurrentGroup = "highlightRuleCurrentGroup"
-    const val exploreBlockRuleItems = "exploreBlockRuleItems"
-    const val exploreBlockRuleGroups = "exploreBlockRuleGroups"
-    const val exploreBlockRuleCurrentGroup = "exploreBlockRuleCurrentGroup"
-    const val exploreBlockRuleShowProgress = "exploreBlockRuleShowProgress"
+    const val blockRuleItems = "exploreBlockRuleItems"
+    const val blockRuleGroups = "exploreBlockRuleGroups"
+    const val blockRuleCurrentGroup = "exploreBlockRuleCurrentGroup"
+    const val blockRuleShowProgress = "exploreBlockRuleShowProgress"
+    const val blockRuleEnabled = "exploreBlockRuleEnabled"
 
     const val backupBookCache = "backupBookCache"
     const val sourceRecycleBinEnabled = "sourceRecycleBinEnabled"

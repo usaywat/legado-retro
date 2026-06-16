@@ -18,6 +18,7 @@ import io.legado.app.utils.invisible
 import io.legado.app.utils.splitNotBlank
 import io.legado.app.utils.toTimeAgo
 import io.legado.app.utils.visible
+import io.legado.app.utils.dpToPx
 import splitties.views.onLongClick
 
 class BooksAdapterList(
@@ -38,6 +39,16 @@ class BooksAdapterList(
         payloads: MutableList<Any>
     ) = binding.run {
         if (payloads.isEmpty()) {
+            // 根据配置控制书籍外边框显示和间距
+            if (AppConfig.showBookBorder) {
+                root.background = context.resources.getDrawable(io.legado.app.R.drawable.card_border_background, null)
+                (root.layoutParams as? ViewGroup.MarginLayoutParams)?.setMargins(
+                    4.dpToPx(), 4.dpToPx(), 4.dpToPx(), 4.dpToPx()
+                )
+            } else {
+                root.background = null
+                (root.layoutParams as? ViewGroup.MarginLayoutParams)?.setMargins(0, 0, 0, 0)
+            }
             tvName.text = item.name
             tvAuthor.text = item.author
             tvRead.text = item.durChapterTitle
@@ -138,7 +149,10 @@ class BooksAdapterList(
             textSize = 11f
             gravity = Gravity.CENTER
             setTextColor(context.resources.getColor(io.legado.app.R.color.tv_text_summary, null))
-            setBackgroundResource(io.legado.app.R.drawable.bg_tag)
+            // 根据书籍外边框状态同步标签外框：有边框时使用带描边的标签背景，无边框时仅显示纯文本
+            if (AppConfig.showBookBorder) {
+                setBackgroundResource(io.legado.app.R.drawable.bg_tag)
+            }
             // 设置内边距
             setPadding(8, 4, 8, 4)
             // 设置 FlexboxLayout.LayoutParams
